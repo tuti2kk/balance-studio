@@ -3,6 +3,9 @@
   const { esc, fmt, toCSV, download } = BPS.utils;
   const F = BPS.formulas;
   let root;
+  const DEFAULT_TH = { strong: 1.3, weak: 0.7 };
+  // Пороги из хранилища; если их там нет (старое сохранение) — значения по умолчанию
+  const thresholds = () => ({ ...DEFAULT_TH, ...(BPS.store.get().audit || {}) });
 
   const LABEL = { strong: 'Доминирует', weak: 'Бесполезен', ok: 'Норма' };
   const ADVICE = {
@@ -23,7 +26,7 @@
       root.innerHTML = `<h2>Аудит баланса</h2><div class="card muted">Нужно минимум 2 юнита — загрузите их на вкладке «Импорт».</div>`;
       return;
     }
-    const th = st.audit;
+    const th = thresholds();
     root.innerHTML = `
       <h2>Аудит баланса</h2>
       <div class="card">
@@ -63,10 +66,11 @@
 
   function drawResult() {
     const st = BPS.store.get();
-    const { rows, median } = F.audit(st.units, st.ttk, st.audit);
+    const th = thresholds();
+    const { rows, median } = F.audit(st.units, st.ttk, th);
     rows.sort((a, b) => b.ratio - a.ratio);
     const strong = rows.filter(r => r.verdict === 'strong'), weak = rows.filter(r => r.verdict === 'weak');
-    const maxRatio = Math.max(...rows.map(r => r.ratio), st.audit.strong);
+    const maxRatio = Math.max(...rows.map(r => r.ratio), th.strong);
     const ex = rows[0];
 
     const box = root.querySelector('#auditResult');

@@ -18,16 +18,25 @@
   }
 
   function init() {
-    // Каждый модуль рисует себя в своей секции
-    for (const [name, mod] of Object.entries(BPS.modules)) {
-      const el = document.getElementById('tab-' + name);
-      if (el) mod.render(el);
-    }
-
+    // Навигацию подключаем ПЕРВОЙ: даже если какой-то модуль упадёт, вкладки продолжат переключаться
     document.getElementById('tabs').addEventListener('click', e => {
       const btn = e.target.closest('button[data-tab]');
       if (btn) showTab(btn.dataset.tab);
     });
+
+    // Каждый модуль рисует себя в своей секции. Ошибка в одном модуле не ломает остальные.
+    for (const [name, mod] of Object.entries(BPS.modules)) {
+      const el = document.getElementById('tab-' + name);
+      if (!el) continue;
+      try {
+        mod.render(el);
+      } catch (err) {
+        console.error(`Модуль «${name}» не запустился:`, err);
+        el.innerHTML = `<div class="msg err"><b>Эта вкладка не загрузилась.</b>
+          Обновите страницу с очисткой кэша (Ctrl+Shift+R / Cmd+Shift+R).
+          <div class="muted" style="margin-top:4px">${BPS.utils.esc(err.message)}</div></div>`;
+      }
+    }
 
     // Тема: сохранённая или системная
     let theme;
