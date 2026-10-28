@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Balance & Progression Studio</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>Balance &amp; Progression Studio</h1>
+    <nav class="tabs" id="tabs">
+      <button data-tab="import" class="active">Импорт</button>
+      <button data-tab="table">Таблица</button>
+      <button data-tab="ttk">Урон / TTK</button>
+      <button data-tab="progression">Прогрессия</button>
+      <button data-tab="loot">Лут</button>
+    </nav>
+    <button id="themeToggle" class="ghost" title="Сменить тему">Тема</button>
+  </header>
+
+  <main>
+    <section id="tab-import" class="panel active"></section>
+    <section id="tab-table" class="panel"></section>
+    <section id="tab-ttk" class="panel"></section>
+    <section id="tab-progression" class="panel"></section>
+    <section id="tab-loot" class="panel"></section>
+  </main>
+
+  <!-- Обычные скрипты (не ES-модули), чтобы сайт открывался двойным кликом по index.html без сервера -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/parsers.js"></script>
+  <script src="js/formulas.js"></script>
+  <script src="js/modules/import.js"></script>
+  <script src="js/modules/table.js"></script>
+  <script src="js/modules/ttk.js"></script>
+  <script src="js/modules/progression.js"></script>
+  <script src="js/modules/loot.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
