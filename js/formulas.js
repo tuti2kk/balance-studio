@@ -75,5 +75,42 @@
     return Math.abs(sum - 100) < 1e-6;
   }
 
-  BPS.formulas = { damage, expectedDamage, hitsToKill, ttk, duel, xpToNext, levelTable, lootSum, lootSumOk };
+  // ---------------- Аудит баланса ----------------
+  // Эффективное здоровье: сколько «чистого» урона юнит выдержит с учётом защиты
+  function effectiveHp(u) {
+    return u.hp * (100 + u.defense) / 100;
+  }
+  // Боевая сила = атака × эффективное здоровье (бьёт сильнее И живёт дольше → сильнее)
+  function power(u) {
+    return u.attack * effectiveHp(u);
+  }
+  function median(nums) {
+    const s = [...nums].sort((a, b) => a - b), m = Math.floor(s.length / 2);
+    return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+  }
+  // Ценность = сила / цена; сравниваем с медианой по всем юнитам.
+  // ratio 1.0 — «как у типичного юнита», 1.5 — на 50% выгоднее, 0.5 — вдвое хуже.
+  function audit(units, ttkSettings, th) {
+    const rows = units.map(u => {
+      const p = power(u);
+      const value = u.cost > 0 ? p / u.cost : Infinity;
+      // Процент побед в дуэлях один на один против всех остальных (ничья = половина победы)
+      let wins = 0, games = 0;
+      for (const o of units) {
+        if (o === u) continue;
+        const me = duel(u, o, ttkSettings).ttkAvg, them = duel(o, u, ttkSettings).ttkAvg;
+        wins += me < them ? 1 : me === them ? 0.5 : 0;
+        games++;
+      }
+      return { unit: u, ehp: effectiveHp(u), power: p, value, winRate: games ? wins / games * 100 : 0 };
+    });
+    const med = median(rows.map(r => r.value).filter(isFinite));
+    for (const r of rows) {
+      r.ratio = med > 0 ? r.value / med : 1;
+      r.verdict = r.ratio >= th.strong ? 'strong' : r.ratio <= th.weak ? 'weak' : 'ok';
+    }
+    return { rows, median: med };
+  }
+
+  BPS.formulas = { effectiveHp, power, median, audit, damage, expectedDamage, hitsToKill, ttk, duel, xpToNext, levelTable, lootSum, lootSumOk };
 })();

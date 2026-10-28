@@ -8,7 +8,8 @@
     unitsSource: null,  // имя файла, из которого импортировали
     ttk: { attackerId: null, targetId: null, multiplier: 1, critChance: 10, critMult: 2, interval: 1 },
     progression: { base: 100, power: 1.5, linear: 0, maxLevel: 30 },
-    loot: [],           // [{table, item, chance, min, max}]
+    audit: { strong: 1.3, weak: 0.7 },
+    loot: [],         // [{table, item, chance, min, max}]
     lootSource: null,
   });
 
@@ -23,7 +24,8 @@
       // Вложенные настройки сливаем с дефолтами, чтобы новые поля появлялись и у старых сохранений
       return { ...d, ...saved,
         ttk: { ...d.ttk, ...saved.ttk },
-        progression: { ...d.progression, ...saved.progression } };
+        progression: { ...d.progression, ...saved.progression },
+        audit: { ...d.audit, ...saved.audit } };
     } catch (e) {
       console.warn('Не удалось прочитать сохранение, начинаю с пустых данных', e);
       return defaults();
